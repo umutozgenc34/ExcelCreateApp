@@ -43,7 +43,7 @@ public class ProductController : Controller
         await _context.SaveChangesAsync();
 
         _rabbitMQPublisher.Publish(new SharedLib.CreateExcelMessage()
-        { FileId = userfile.Id, UserId = user.Id });
+        { FileId = userfile.Id});
 
         TempData["StartCreatingExcel"] = true;
 
