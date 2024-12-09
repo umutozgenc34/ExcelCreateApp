@@ -1,4 +1,5 @@
 using ExcelCreateApp.Models;
+using ExcelCreateApp.MyHubs;
 using ExcelCreateApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
     opt.User.RequireUniqueEmail = true;
 }).AddEntityFrameworkStores<AppDbContext>();
 
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -71,6 +72,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<MyHub>("/MyHub");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

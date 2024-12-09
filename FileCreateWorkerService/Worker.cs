@@ -64,9 +64,10 @@ namespace FileCreateWorkerService
             wb.Worksheets.Add(ds);
             wb.SaveAs(ms);
 
-            MultipartFormDataContent multipartFormDataContent = new();
-
-            multipartFormDataContent.Add(new ByteArrayContent(ms.ToArray()), "file", Guid.NewGuid().ToString() + ".xlsx");
+            MultipartFormDataContent multipartFormDataContent = new()
+            {
+                { new ByteArrayContent(ms.ToArray()), "file", Guid.NewGuid().ToString() + ".xlsx" }
+            };
 
             var baseUrl = "https://localhost:44333/api/files";
 
@@ -89,7 +90,7 @@ namespace FileCreateWorkerService
 
         private DataTable GetTable(string tableName)
         {
-            List<FileCreateWorkerService.Models.Product> products;
+            List<Product> products;
 
             using (var scope = _serviceProvider.CreateScope())
             {

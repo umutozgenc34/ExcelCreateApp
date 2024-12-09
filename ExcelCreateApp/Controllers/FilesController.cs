@@ -1,4 +1,5 @@
 ﻿using ExcelCreateApp.Models;
+using ExcelCreateApp.MyHubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -11,9 +12,11 @@ namespace ExcelCreateApp.Controllers;
 public class FilesController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public FilesController(AppDbContext context)
+    private readonly IHubContext<MyHub> _hubContext;
+    public FilesController(AppDbContext context, IHubContext<MyHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     [HttpPost]
@@ -40,6 +43,8 @@ public class FilesController : ControllerBase
         userFile.FileStatus = FileStatus.Completed;
 
         await _context.SaveChangesAsync();
+
+        await _hubContext.Clients.User(userFile.UserId).SendAsync("CompletedFile");
 
         return Ok();
     }
