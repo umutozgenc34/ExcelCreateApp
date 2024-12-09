@@ -1,4 +1,5 @@
 ﻿using ExcelCreateApp.Models;
+using ExcelCreateApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,13 @@ public class ProductController : Controller
 {
     private readonly AppDbContext _context;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly RabbitMQPublisher _rabbitMQPublisher;
 
-    public ProductController(AppDbContext context, UserManager<IdentityUser> userManager)
+    public ProductController(AppDbContext context, UserManager<IdentityUser> userManager,RabbitMQPublisher rabbitMQPublisher)
     {
         _context = context;
         _userManager = userManager;
+        _rabbitMQPublisher = rabbitMQPublisher;
     }
 
     public IActionResult Index()
@@ -38,6 +41,9 @@ public class ProductController : Controller
 
         await _context.UserFiles.AddAsync(userfile);
         await _context.SaveChangesAsync();
+
+        _rabbitMQPublisher.Publish(new SharedLib.CreateExcelMessage()
+        { FileId = userfile.Id, UserId = user.Id });
 
         TempData["StartCreatingExcel"] = true;
 
